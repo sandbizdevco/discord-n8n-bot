@@ -93,13 +93,16 @@ client.on('messageCreate', async (message) => {
         description: att.description
       }));
     }
-    
-    // Send to n8n webhook
+     // Send to n8n webhook
     if (N8N_WEBHOOK_URL) {
       log('info', 'Sending to n8n', { 
         messageId: message.id,
         hasAttachments: message.attachments.size > 0 
       });
+      
+      // Add debug for the payload being sent
+      console.log('DEBUG webhook payload:', JSON.stringify(webhookData, null, 2));
+      console.log('DEBUG webhook URL:', N8N_WEBHOOK_URL);
       
       const response = await axios.post(N8N_WEBHOOK_URL, webhookData, {
         headers: {
@@ -107,6 +110,10 @@ client.on('messageCreate', async (message) => {
         },
         timeout: 30000 // 30 second timeout
       });
+      
+      // Add debug for the response
+      console.log('DEBUG n8n raw response:', JSON.stringify(response.data));
+      console.log('DEBUG response status:', response.status);
       
       // Handle n8n response
       if (response.data) {
@@ -241,3 +248,4 @@ client.login(TOKEN).catch(error => {
   log('error', 'Failed to login', { error: error.message });
   process.exit(1);
 });
+
